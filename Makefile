@@ -1,4 +1,4 @@
-APPS = openssl_tracer
+APPS = openssl_trace
 
 UPROBE ?= ./bpf/
 
