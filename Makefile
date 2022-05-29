@@ -133,4 +133,4 @@ format:
 # Build the ebpf code
 .PHONY: build
 build:
-	@(CMD_GO) build -o $(APPS)
+	$(CMD_GO) build -o $(APPS)
