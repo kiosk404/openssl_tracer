@@ -23,7 +23,7 @@ import (
 var pid int
 
 func init() {
-	flag.IntVar(&pid, "pid", 1, "input tracing pid")
+	flag.IntVar(&pid, "pid", 0, "input tracing pid")
 }
 
 

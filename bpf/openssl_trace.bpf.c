@@ -191,35 +191,32 @@ int probe_ret_SSL_write(struct pt_regs* ctx) {
 // int SSL_read(SSL *s, void *buf, int num)
 SEC("uprobe/SSL_read")
 int probe_entry_SSL_read(struct pt_regs* ctx) {
-    debug_bpf_printk("aaaaaaaaaaaa openssl uprobe PID\n");
-    bpf_printk("abc abc abc ");
-
     u64 current_pid_tgid = bpf_get_current_pid_tgid();
     u32 pid = current_pid_tgid >> 32;
 
-    //#ifndef KERNEL_LESS_5_2
-    //    // if target_ppid is 0 then we target all pids
-    //    if (target_pid != 0 && target_pid != pid) {
-    //        return 0;
-    //    }
-    //#endif
+#ifndef KERNEL_LESS_5_2
+    // if target_ppid is 0 then we target all pids
+    if (target_pid != 0 && target_pid != pid) {
+        return 0;
+    }
+#endif
 
-    //    void* ssl = (void*)PT_REGS_PARM1(ctx);
+    void* ssl = (void*)PT_REGS_PARM1(ctx);
     // https://github.com/openssl/openssl/blob/OpenSSL_1_1_1-stable/crypto/bio/bio_local.h
-    //    struct ssl_st ssl_info;
-    //    bpf_probe_read_user(&ssl_info, sizeof(ssl_info), ssl);
-    //
-    //    struct BIO bio_r;
-    //    bpf_probe_read_user(&bio_r, sizeof(bio_r), ssl_info.rbio);
-    //
-    //    // get fd ssl->rbio->num
-    //    u32 fd = bio_r.num;
-    //    debug_bpf_printk("openssl uprobe PID:%d, SSL_read FD:%d\n", pid, fd);
+    struct ssl_st ssl_info;
+    bpf_probe_read_user(&ssl_info, sizeof(ssl_info), ssl);
+
+    struct BIO bio_r;
+    bpf_probe_read_user(&bio_r, sizeof(bio_r), ssl_info.rbio);
+
+    // get fd ssl->rbio->num
+    u32 fd = bio_r.num;
+    debug_bpf_printk("openssl uprobe PID:%d, SSL_read FD:%d\n", pid, fd);
 
     const char* buf = (const char*)PT_REGS_PARM2(ctx);
     struct active_ssl_buf active_ssl_buf_t;
     __builtin_memset(&active_ssl_buf_t, 0, sizeof(active_ssl_buf_t));
-    //    active_ssl_buf_t.fd = fd;
+    active_ssl_buf_t.fd = fd;
     active_ssl_buf_t.buf = buf;
     bpf_map_update_elem(&active_ssl_read_args_map, &current_pid_tgid,
                         &active_ssl_buf_t, BPF_ANY);
