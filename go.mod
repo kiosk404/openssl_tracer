@@ -5,7 +5,7 @@ go 1.23.0
 require (
 	github.com/cilium/ebpf v0.8.1
 	github.com/ehids/ebpfmanager v0.2.3
-	github.com/sirupsen/logrus v1.8.1
+	github.com/sirupsen/logrus v1.8.3
 	golang.org/x/sys v0.31.0
 )
 
